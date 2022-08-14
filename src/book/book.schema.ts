@@ -1,39 +1,48 @@
-import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import mongoose from 'mongoose';
+import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { Author } from 'src/author/author.schema';
 
+export type BookDocument = Book & mongoose.Document;
+
+@Schema()
 @ObjectType()
 export class Book {
   @Field(() => ID)
-  id: number;
+  _id: string;
 
+  @Prop({ required: true })
   @Field()
   title: string;
 
+  @Prop({ required: true })
   @Field()
   isbn: string;
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Author.name })
   @Field(() => Author)
-  author: Author | number;
+  author: Author | string;
 }
+
+export const BookSchema = SchemaFactory.createForClass(Book);
+
+BookSchema.index({ author: 1 });
 
 @InputType()
 export class CreateBookInput {
-  @Field(() => ID)
-  id: number;
-
   @Field()
   title: string;
 
   @Field()
   isbn: string;
 
-  @Field(() => Int)
-  author: number;
+  @Field()
+  author: string;
 }
 
 @InputType()
 export class FindBookInput {
-  @Field(() => Int)
-  id: number;
+  @Field()
+  _id: string;
 }

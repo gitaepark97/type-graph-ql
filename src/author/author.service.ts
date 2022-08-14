@@ -1,16 +1,24 @@
+import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 
-import authors from '../data/author';
+import { Author, AuthorDocument } from './author.schema';
 
 @Injectable()
 export class AuthorService {
-  async findById(id) {
-    const result = authors.filter((item) => item.id === id);
+  constructor(
+    @InjectModel(Author.name) private authorModel: Model<AuthorDocument>,
+  ) {}
 
-    return result.length ? result[0] : null;
+  async findById(_id) {
+    return this.authorModel.findById(_id).lean();
   }
 
   async findMany() {
-    return authors;
+    return this.authorModel.find().lean();
+  }
+
+  async createAuthor(input) {
+    return this.authorModel.create(input);
   }
 }
